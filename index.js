@@ -8,7 +8,8 @@ const express = require('express'),
 
 dotenv.config();
 
-const authRoute = require('./routes/auth');
+const authRoute = require('./routes/auth'),
+    productRoute = require('./routes/product');
 
 mongoose.connect(process.env.MONGODB_URL)
     .then(() => console.log("몽고DB 연결 성공!"))
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(morgan('common'));
 
 app.use('/api/auth', authRoute);
+app.use('/api/products', productRoute);
 
 
 const port = process.env.PORT || 8080;
