@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const ProductSchema = new mongoose.Schema(
     {
+        sellerId: { type: String, required: true },
         title: { type: String, required: true },
         // desc: { type: Array, required: true },
         // img: { type: String, required: true },

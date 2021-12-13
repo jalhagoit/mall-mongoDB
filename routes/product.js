@@ -62,6 +62,14 @@ router.get('/:id', async (req, res) => {
 });
 
 // 판매자별 제품 조회
+router.get('/seller/:id', async (req, res) => {
+    try {
+        const products = await Product.find({sellerId: req.params.id});
+        res.status(200).json(products);
+    } catch(err) {
+        res.status(500).json(err);
+    }
+});
 
 
 // TODO 검색 조건 및 방식 조정 필요
