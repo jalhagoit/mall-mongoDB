@@ -29,6 +29,7 @@ router.post('/register/buyer', async (req, res) => {
 
         // 유저 저장과 응답
         const savedBuyer = await newBuyer.save();
+            // TODO 카트 생성
         res.status(201).json(savedBuyer);
     } catch(err) {
         res.status(500).json(err);

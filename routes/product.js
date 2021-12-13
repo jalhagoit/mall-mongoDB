@@ -38,12 +38,11 @@ router.put('/:id', async (req, res) => {
 // 제품 삭제
 router.delete('/:id', async (req, res) => {
     try {
-        await Product.findByIdAndDelete(req.params.id);
-        // TODO
-        // postman에서 이미 삭제된 제품 다시 삭제 요청 시
-        // 왜 err가 아닌 삭제 완료 응답이 뜨는지?
-        // 없는 제품ID(자릿수 맞춤)도 삭제 완료가 뜸
-        res.status(200).json('제품 삭제 완료'); 
+        const prod = await Product.findByIdAndDelete(req.params.id);
+        if(prod){
+            res.status(200).json('제품 삭제 완료'); 
+        }
+        res.status(200).json('이미 삭제되었거나 없음'); // 몇 번 코드를 던져줘야 돼??
     } catch(err) {
         res.status(500).json(err);
     }
