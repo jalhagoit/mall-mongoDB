@@ -44,7 +44,19 @@ router.get('/:buyerId', async (req, res) => {
 // 카트에 제품 추가(TODO 카트에 이미 제품이 존재한다면 수량만 추가)
 // TODO 수량 수정
 router.put('/:cartId', async (req, res) => {
-
+    try {
+        // products 배열 내부가 전체 수정됨
+        const updatedCart = await Cart.findByIdAndUpdate(
+            req.params.cartId,
+            {products: req.body.products},
+            {upsert:true, new: true}
+            );
+            
+        res.status(200).json(updatedCart);
+        
+    } catch(err) {
+        res.status(500).json(err);
+    }
 });
 
 // 카트에서 제품 삭제
