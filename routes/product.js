@@ -5,7 +5,6 @@ const Product = require('../models/Product');
 
 // TODO
 // 토큰(권한) (등록, 수정, 삭제에)
-// 어느 판매자ID의 제품인지
 
 // 제품 등록
 router.post('/', async (req, res) => {
@@ -38,8 +37,8 @@ router.put('/:id', async (req, res) => {
 // 제품 삭제
 router.delete('/:id', async (req, res) => {
     try {
-        const prod = await Product.findByIdAndDelete(req.params.id);
-        if(prod){
+        const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+        if(deletedProduct){
             res.status(200).json('제품 삭제 완료'); 
         }
         res.status(200).json('이미 삭제되었거나 없음'); // 몇 번 코드를 던져줘야 돼??
