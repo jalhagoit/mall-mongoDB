@@ -4,18 +4,18 @@ const mongoose = require('mongoose');
 
 const CartSchema = new mongoose.Schema(
     {
-        buyerId: { type: String, required: true, unique: true },
+        buyerId: { type: mongoose.Schema.Types.ObjectId, required: true, unique: true },
         products: [
             {
                 productId: {
-                    type: String, unique: true
+                    type: mongoose.Schema.Types.ObjectId
                 },
                 quantity: {
                     type: Number,
                     default: 1,
                 },
             },
-            { timestamps: true }
+            // { timestamps: true } 제품마다 카트에 넣고 수정한 일시 표기 어떻게 해? (스키마 분리?)
         ]
     },
     { timestamps: true }

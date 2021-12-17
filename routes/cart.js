@@ -16,7 +16,6 @@ router.post('/', async (req, res) => {
         if(buyer) {
             const savedCart = await newCart.save();
             res.status(201).json(savedCart);
-            // 카트 생성은 됐는데 경고떠.. https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
         }
         res.status(404).json('유저가 존재하지 않음');
             
@@ -40,24 +39,69 @@ router.get('/:buyerId', async (req, res) => {
 });
 
 
-// 업데이트
-// 카트에 제품 추가(TODO 카트에 이미 제품이 존재한다면 수량만 추가)
-// TODO 수량 수정
+
+function runUpdate(condition, updateData) {
+    return new Promise((resolve, reject) => {
+      Cart.findOneAndUpdate(condition, updateData, { new: true, upsert: true })
+        .then((result) => resolve(result))
+        .catch((err) => reject(err));
+    });
+  }
+
+
+// 카트에 제품 추가(카트에 이미 제품이 존재한다면 수량 변경)
 router.put('/:cartId', async (req, res) => {
     try {
-        // products 배열 내부가 전체 수정됨
-        const updatedCart = await Cart.findByIdAndUpdate(
-            req.params.cartId,
-            {products: req.body.products},
-            {upsert:true, new: true}
-            );
-            
-        res.status(200).json(updatedCart);
+        await Cart.findOne({ _id: req.params.cartId }).exec(async (err, cart) => {
+            if (cart) {
+              // 카트가 존재한다면 수량 업데이트
+              let promiseArray = [];
+        
+              req.body.products.forEach(async (cartItem) => {
+                const productId = cartItem.productId;
+                const item = cart.products.find((c) => c.productId == productId);
+                let condition, update;
+                if (item) {
+                  condition = { _id: req.params.cartId, "products.productId": productId };
+                  update = {
+                    $set: {
+                      "products.$": cartItem,
+                    },
+                  };
+                } else {
+                  condition = { _id: req.params.cartId };
+                  update = {
+                    $push: {
+                      products: cartItem,
+                    },
+                  };
+                }
+                promiseArray.push(runUpdate(condition, update));
+              });
+              Promise.all(promiseArray)
+                .then((result) => res.status(201).json(result.pop()))
+                .catch((err) => res.status(400).json({ err }));
+            } else {
+              // 카트가 없다면 새 카트 생성
+              return res.status(404).json('새 카트 생성 코드 없음');
+            //   const cart = new Cart({
+            //     _id: req.params.cartId,
+            //     products: req.body.products,
+            //   });
+            //   cart.save((err, cart) => {
+            //     if (err) return res.status(400).json({ err });
+            //     if (cart) {
+            //       return res.status(201).json({ cart });
+            //     }
+            //   });
+            }
+        });
         
     } catch(err) {
         res.status(500).json(err);
     }
 });
+
 
 // 카트에서 제품 삭제
 router.delete('/product/:cartId', async (req, res) => {
